@@ -1,0 +1,20 @@
+[general]
+name:Subset Expression Plugin
+description:Plugin to set a provider subset string based on an expression.
+
+version:1.0
+qgisMinimumVersion:3.0
+experimental:False
+homepage:
+repository:https://github.com/elpaso/qgis-subset-expression-plugin
+tracker:https://github.com/elpaso/qgis-subset-expression-plugin/issues
+about:Plugin to set a provider subset string based on an expression.
+
+changelog:
+    Version 1.0:
+    * Initial implementation
+
+
+icon:icons/mActionFilter2.svg
+email:apasotti@gmail.com
+author:Alessandro Pasotti

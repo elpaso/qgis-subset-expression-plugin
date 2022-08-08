@@ -1,0 +1,50 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: RAT Plugin CI tests
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Extract branch name
+      shell: bash
+      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      id: extract_branch
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        pip3 install flake8 pytest-xdist
+        if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
+        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key 46B5721DBBD2996A
+        sudo sh -c 'echo "deb [arch=amd64] https://qgis.org/ubuntu-ltr focal main" >> /etc/apt/sources.list'
+        sudo apt update
+        sudo apt install qgis xvfb
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Test with pytest
+      run: |
+        xvfb-run pytest --forked -v
+    - name: Prepare artifact
+      run: |
+        git archive --prefix qgis-subset-expression-plugin/qgis-subset-expression-plugin/ --format=zip -o qgis-subset-expression-plugin.zip ${{ github.sha }}
+        unzip qgis-subset-expression-plugin.zip
+    - uses: actions/upload-artifact@v2
+      with:
+        name: qgis-subset-expression-plugin.zip
+        path: ./qgis-subset-expression-plugin
+    #- name: Setup tmate session
+    #  if: ${{ failure() }}
+    #  uses: mxschmitt/action-tmate@v3
+    #  with:
+    #    limit-access-to-actor: true
+
