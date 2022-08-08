@@ -29,15 +29,16 @@ class SubsetExpression(object):
     def __init__(self, iface):
         # Save reference to the QGIS interface
         self.iface = iface
-        self.canvas = iface.mapCanvas()
         QgsProject.instance().readProject.connect(self.load_subsets)
         self.factory = SubsetExpressionWidgetFactory(iface, _tr("Layer filter expressions"), QgsApplication.getThemeIcon("/mActionFilter2.svg"))
         iface.registerProjectPropertiesWidgetFactory(self.factory)
         QgsApplication.instance().customVariablesChanged.connect(self.var_changed)
+        QgsProject.instance().customVariablesChanged.connect(self.var_changed)
 
     def unload(self):
         self.iface.unregisterProjectPropertiesWidgetFactory(self.factory)
         QgsApplication.instance().customVariablesChanged.disconnect(self.var_changed)
+        QgsProject.instance().customVariablesChanged.disconnect(self.var_changed)
 
     def load_subsets(self, dom=None):
 

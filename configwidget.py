@@ -20,7 +20,7 @@ from qgis.PyQt.QtWidgets import QTableWidgetItem, QCheckBox
 from qgis.gui import QgsOptionsPageWidget
 from qgis.core import QgsProject, QgsMapLayerType
 
-from .utils import set_subset_expression, _tr
+from .utils import set_subset_expression, store_subset_expression, _tr
 
 class ConfigWidget(QgsOptionsPageWidget):
     """Configuration widget for filter expressions"""
@@ -66,10 +66,7 @@ class ConfigWidget(QgsOptionsPageWidget):
             exp_checked = 1 if self.mLayerTableWidget.item(row, 0).checkState() == Qt.Checked else 0
             exp_text = self.mLayerTableWidget.item(row, 2).data(Qt.DisplayRole).strip()
             layer_instance = self.vector_layers[row]
-            layer_instance.setCustomProperty('subset_expression', exp_text)
-            layer_instance.setCustomProperty('subset_expression_checked', exp_checked)
-            if exp_checked:
-                set_subset_expression(layer_instance, exp_text, self.iface)
+            store_subset_expression(layer_instance, exp_text, exp_checked, iface)
 
     def toggle_all(self):
         """Toggle all layers"""

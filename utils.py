@@ -81,3 +81,26 @@ def set_subset_expression(layer_instance, exp_text, iface) -> bool:
             return False
 
     return False
+
+def store_subset_expression(layer_instance, exp_text, exp_checked, iface) -> bool:
+    """Store the filter expression text in the project
+
+    :param layer_instance: vector layer
+    :type layer_instance: QgsVectorLayer
+    :param exp_text: expression text
+    :type exp_text: str
+    :param exp_checked: expression is checked
+    :type exp_cheked: bool
+    :param iface: QGIS interface
+    :type iface: iface
+    :return: True on success
+    :rtype: bool
+    """
+
+    layer_instance.setCustomProperty('subset_expression', exp_text)
+    layer_instance.setCustomProperty('subset_expression_checked', exp_checked)
+
+    if exp_checked:
+        return set_subset_expression(layer_instance, exp_text, iface)
+
+    return True

@@ -12,25 +12,102 @@ __author__ = 'elpaso@itopen.it'
 __date__ = '2022-08-08'
 __copyright__ = 'Copyright 2022, ItOpen'
 
+import os, sys, importlib.util
+from pathlib import Path
+from osgeo import gdal, ogr
+from unittest import main, skipIf
+from qgis.core import QgsApplication, QgsVectorLayer, QgsProject, QgsExpressionContextUtils
+from qgis.PyQt.QtCore import QTemporaryDir
+from qgis.testing import TestCase, start_app
+from qgis.testing.mocked import get_iface
+from qgis import utils as qgis_utils
 
-from unittest import TestCase, main, skipIf
-from qgis.core import QgsApplication
+sys.path.append(str(Path(os.path.dirname(__file__)).parent.absolute().parent.absolute()))
 
-class RatUtilsTest(TestCase):
+QGISAPP = start_app()
+iface = get_iface()
+
+
+class SubsetExpressionUtilsTest(TestCase):
 
     @classmethod
     def setUpClass(cls):
 
-        cls.qgs = QgsApplication([], False)
-        cls.qgs.initQgis()
+        qgis_utils.plugin_paths = [str(Path(os.path.dirname(__file__)).parent.absolute().parent.absolute())]
+        qgis_utils.updateAvailablePlugins()
+        result = qgis_utils.loadPlugin('qgis-subset-expression-plugin')
+        assert result
+        package = sys.modules['qgis-subset-expression-plugin']
+        qgis_utils.plugins['qgis-subset-expression-plugin'] = package.classFactory(iface)
+        assert result
+        cls.package = package
+
+        spec = importlib.util.spec_from_file_location("utils", os.path.join(package.__path__[0], "utils.py"))
+        utils = importlib.util.module_from_spec(spec)
+        sys.modules["utils"] = utils
+        globals()['utils'] = utils
+        spec.loader.exec_module(utils)
 
     @classmethod
     def tearDownClass(cls):
 
-        cls.qgs.exitQgis()
+        pass
+
+    def setUp(self):
+        """Prepare test data and project"""
+
+        self.tmp_dir = QTemporaryDir()
+        self.temp_path = os.path.join(self.tmp_dir.path(), 'subset_expression_test.gpkg')
+        self.temp_project_path = os.path.join(self.tmp_dir.path(), 'subset_expression_test.qgs')
+
+        ds = ogr.GetDriverByName('GPKG').CreateDataSource(self.temp_path)
+        lyr = ds.CreateLayer('test_layer', geom_type=ogr.wkbNone)
+        lyr.CreateField(ogr.FieldDefn('name', ogr.OFTString))
+        f = ogr.Feature(lyr.GetLayerDefn())
+        f['name'] = 'A1'
+        lyr.CreateFeature(f)
+        f = ogr.Feature(lyr.GetLayerDefn())
+        f['name'] = 'B1'
+        lyr.CreateFeature(f)
+        f = ogr.Feature(lyr.GetLayerDefn())
+        f['name'] = 'A2'
+        lyr.CreateFeature(f)
+
+        f = None
+        ds = None
+
+        test_layer = QgsVectorLayer(self.temp_path + '|layername=test_layer', 'test_layer')
+        QgsProject.instance().addMapLayers([test_layer])
+        self.layer = test_layer
+
+        # Save the project
+        QgsProject.instance().write(self.temp_project_path)
 
     def test_subset_expression(self):
-        pass
+
+        self.assertEqual(set([f['name'] for f in self.layer.getFeatures()]), {'A1', 'A2', 'B1'})
+        utils.store_subset_expression(self.layer, "name LIKE '@first_letter%'", True, iface)
+
+        # There is no variable set, no expression is set
+        self.assertEqual(set([f['name'] for f in self.layer.getFeatures()]), {'A1', 'A2', 'B1'})
+
+        # Set the expression at project level
+        QgsExpressionContextUtils.setProjectVariable(QgsProject.instance(), 'first_letter','A')
+        self.assertEqual(set([f['name'] for f in self.layer.getFeatures()]), {'A1', 'A2'})
+
+        QgsExpressionContextUtils.setGlobalVariable('first_letter','B')
+        # No changes so far: project has precedence
+        self.assertEqual(set([f['name'] for f in self.layer.getFeatures()]), {'A1', 'A2'})
+
+        # Now we get B!
+        QgsExpressionContextUtils.removeProjectVariable(QgsProject.instance(), 'first_letter')
+        self.assertEqual(set([f['name'] for f in self.layer.getFeatures()]), {'B1'})
+
+        # Clear, no var, no changes!
+        QgsExpressionContextUtils.removeGlobalVariable('first_letter')
+        self.assertEqual(set([f['name'] for f in self.layer.getFeatures()]), {'B1'})
+
+
 
 if __name__ == '__main__':
     main()
