@@ -25,20 +25,19 @@ from qgis import utils as qgis_utils
 sys.path.append(str(Path(os.path.dirname(__file__)).parent.absolute().parent.absolute()))
 
 QGISAPP = start_app()
-iface = get_iface()
-
 
 class SubsetExpressionUtilsTest(TestCase):
 
     @classmethod
     def setUpClass(cls):
 
+        cls.iface = get_iface()
         qgis_utils.plugin_paths = [str(Path(os.path.dirname(__file__)).parent.absolute().parent.absolute())]
         qgis_utils.updateAvailablePlugins()
         result = qgis_utils.loadPlugin('qgis-subset-expression-plugin')
         assert result
         package = sys.modules['qgis-subset-expression-plugin']
-        qgis_utils.plugins['qgis-subset-expression-plugin'] = package.classFactory(iface)
+        qgis_utils.plugins['qgis-subset-expression-plugin'] = package.classFactory(cls.iface)
         assert result
         cls.package = package
 
@@ -86,7 +85,7 @@ class SubsetExpressionUtilsTest(TestCase):
     def test_subset_expression(self):
 
         self.assertEqual(set([f['name'] for f in self.layer.getFeatures()]), {'A1', 'A2', 'B1'})
-        utils.store_subset_expression(self.layer, "name LIKE '@first_letter%'", True, iface)
+        utils.store_subset_expression(self.layer, "name LIKE '@first_letter%'", True, self.iface)
 
         # There is no variable set, no expression is set
         self.assertEqual(set([f['name'] for f in self.layer.getFeatures()]), {'A1', 'A2', 'B1'})

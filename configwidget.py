@@ -66,7 +66,7 @@ class ConfigWidget(QgsOptionsPageWidget):
             exp_checked = 1 if self.mLayerTableWidget.item(row, 0).checkState() == Qt.Checked else 0
             exp_text = self.mLayerTableWidget.item(row, 2).data(Qt.DisplayRole).strip()
             layer_instance = self.vector_layers[row]
-            store_subset_expression(layer_instance, exp_text, exp_checked, iface)
+            store_subset_expression(layer_instance, exp_text, exp_checked, self.iface)
 
     def toggle_all(self):
         """Toggle all layers"""
