@@ -73,6 +73,6 @@ class ConfigWidget(QgsOptionsPageWidget):
 
         for row in range(self.mLayerTableWidget.rowCount()):
             item = self.mLayerTableWidget.item(row, 0)
-            item.setCheckState(Qt.Unchecked if item.checkState() == Qt.Checked else Qt.Unchecked)
+            item.setCheckState(Qt.Checked if item.checkState() != Qt.Checked else Qt.Unchecked)
 
 
