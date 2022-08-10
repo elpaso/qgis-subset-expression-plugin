@@ -21,7 +21,8 @@ jobs:
         python3 -m pip install --upgrade pip
         pip3 install flake8 pytest-xdist mock
         if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
-        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key 46B5721DBBD2996A
+        sudo wget -qO - https://qgis.org/downloads/qgis-2022.gpg.key | sudo gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/qgis-archive.gpg --import
+        sudo chmod a+r /etc/apt/trusted.gpg.d/qgis-archive.gpg
         sudo sh -c 'echo "deb [arch=amd64] https://qgis.org/ubuntu-ltr focal main" >> /etc/apt/sources.list'
         sudo apt update
         sudo apt install qgis xvfb
