@@ -30,7 +30,7 @@ class SubsetExpression(object):
 
         self.iface = iface
         QgsProject.instance().readProject.connect(self.load_subsets)
-        self.factory = SubsetExpressionWidgetFactory(iface, _tr("Layer filter expressions"), QgsApplication.getThemeIcon("/mActionFilter2.svg"))
+        self.factory = SubsetExpressionWidgetFactory(iface, _tr("Layer dynamic filters"), QgsApplication.getThemeIcon("/mActionFilter2.svg"))
         iface.registerProjectPropertiesWidgetFactory(self.factory)
         QgsApplication.instance().customVariablesChanged.connect(self.var_changed)
         QgsProject.instance().customVariablesChanged.connect(self.var_changed)
