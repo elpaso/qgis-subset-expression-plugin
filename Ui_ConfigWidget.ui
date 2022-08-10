@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>642</width>
     <height>300</height>
    </rect>
   </property>
@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;To override a layer filter with a dynamic filter, enter the dynamic filter definition in the table and check the corresponding checkbox.&lt;/p&gt;&lt;p&gt;Overridden filter definitions can use QGIS variables that will be replaced when the layer is created or when the value of the variable changes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;To override a layer subset filter string with a dynamically generated one, enter the dynamic subset filter definition in the table below and tick the corresponding checkbox.&lt;/p&gt;&lt;p&gt;Overridden filter definitions can use QGIS variables that will be replaced when the layer is loaded or when the value of the variable changes.&lt;/p&gt;&lt;p&gt;For example, provided you have defined a variable named &lt;span style=&quot; font-style:italic;&quot;&gt;@names_filter&lt;/span&gt; the subset expression &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;name&amp;quot; LIKE '@names_filter'&lt;/span&gt; will be applied to the layer after the variable replacement, the filter will be automatically updated whenever the variable value changes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

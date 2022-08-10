@@ -124,6 +124,28 @@ class SubsetExpressionUtilsTest(TestCase):
         self.assertEqual(set([f['name']
                               for f in self.layer.getFeatures()]), {'B1'})
 
+    def test_subset_string_override(self):
+        """Test if a user-overridden subset takes precedence"""
+
+        QgsExpressionContextUtils.setGlobalVariable('first_letter', 'B')
+        self.assertEqual(set([f['name'] for f in self.layer.getFeatures()]), {
+                         'A1', 'A2', 'B1'})
+
+        self.assertFalse(self.layer.customProperty('subset_expression_checked'))
+        utils.store_subset_expression(self.layer, "name LIKE '@first_letter%'", True, self.iface)  # noqa: F821
+        self.assertEqual(set([f['name'] for f in self.layer.getFeatures()]), {'B1'})
+
+        # Check if rule is enabled
+        self.assertTrue(self.layer.customProperty('subset_expression_checked'))
+
+        # Manual override
+        self.layer.setSubsetString('name LIKE \'A%\'')
+        self.assertEqual(set([f['name'] for f in self.layer.getFeatures()]), {
+                         'A1', 'A2'})
+        # Check if rule was disabled
+        self.assertFalse(self.layer.customProperty('subset_expression_checked'))
+
+
 
 if __name__ == '__main__':
     main()

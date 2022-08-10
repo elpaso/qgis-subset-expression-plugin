@@ -41,12 +41,48 @@ def log_message(message, level=Qgis.MessageLevel.Info):
 
     QgsMessageLog.logMessage(message, PLUGIN_DOMAIN, level)
 
+def get_subset_expression(layer) -> str:
+    """Calculate the subset expression for the layer, an empty string is returned
+    if the subset string could not be calculated or it is disabled
 
-def set_subset_expression(layer_instance, exp_text, iface) -> bool:
+    :param layer: the layer
+    :type layer: QgsVectorLayer
+    :return: the calculated subset string or an empty string
+    :rtype: str
+    """
+
+    if layer.customProperty('subset_expression_checked'):
+
+        exp_text = layer.customProperty('subset_expression')
+
+        if exp_text is not None and exp_text != "":
+            ctx = QgsExpressionContext(QgsExpressionContextUtils.globalProjectLayerScopes(layer))
+
+            # Validate
+            var_list = re.findall(r'@(\w+)', exp_text)
+            for exp_var in var_list:
+                if not ctx.hasVariable(exp_var):
+                    return ''
+
+            for var in var_list:
+                exp_text = exp_text.replace('@{}'.format(var), str(ctx.variable(var)))
+
+            return exp_text
+
+    return ''
+
+
+def notify(iface, title, message, level=Qgis.Info):
+    """Push message on message bar and log it"""
+
+    iface.messageBar().pushMessage(title, message, level)
+    log_message(message, level)
+
+def set_subset_expression(layer, exp_text, iface) -> bool:
     """Set the subset expression on the layer instance
 
-    :param layer_instance: layer instance
-    :type layer_instance: vector layer
+    :param layer: layer instance
+    :type layer: vector layer
     :param exp_text: expression text
     :type exp_text: str
     :param iface: QGIS interface
@@ -56,37 +92,38 @@ def set_subset_expression(layer_instance, exp_text, iface) -> bool:
     """
 
     if exp_text is not None and exp_text != "":
-        ctx = QgsExpressionContext(QgsExpressionContextUtils.globalProjectLayerScopes(layer_instance))
+        
+        ctx = QgsExpressionContext(QgsExpressionContextUtils.globalProjectLayerScopes(layer))
 
         # Validate
         var_list = re.findall(r'@(\w+)', exp_text)
         for exp_var in var_list:
             if not ctx.hasVariable(exp_var):
-                iface.messageBar().pushMessage(_tr("Notice"), _tr("Layer <b>{}</b> dynamic filter <tt>{}</tt> is invalid: variable <tt>@{}</tt> is not defined! Filter was not set.").format(layer_instance.name(), exp_text,
+                notify(iface, _tr("Notice"), _tr("Layer <b>{}</b> dynamic provider filter definition <tt>{}</tt> is invalid: variable <tt>@{}</tt> is not defined! Provider filter was not changed.").format(layer.name(), exp_text,
                 exp_var), level=Qgis.Warning)
                 return False
 
         for var in var_list:
             exp_text = exp_text.replace('@{}'.format(var), str(ctx.variable(var)))
 
-        if exp_text == layer_instance.subsetString():
-            log_message(_tr("Layer <b>{}</b> was not changed.").format(layer_instance.name()))
+        if exp_text == layer.subsetString():
+            log_message(_tr("Layer <b>{}</b> provider filter was not changed.").format(layer.name()))
             return False
 
-        if layer_instance.setSubsetString(exp_text):
-            iface.messageBar().pushMessage(_tr("Notice"), _tr("Layer <b>{}</b> dynamically filtered: <tt>{}</tt>)").format(layer_instance.name(), exp_text), level=Qgis.Success)
+        if layer.setSubsetString(exp_text):
+            notify(iface, _tr("Notice"), _tr("Layer <b>{}</b> provider filter was changed to: <tt>{}</tt>").format(layer.name(), exp_text), level=Qgis.Success)
             return True
         else:
-            iface.messageBar().pushMessage(_tr("Error"), _tr("Error setting dynamic filter for layer <b>{}</b> to <tt>{}</tt>)"), level=Qgis.Critical)
+            notify(iface, tr("Error"), _tr("Error setting provider filter for layer <b>{}</b> to <tt>{}</tt>").format(layer.name(), exp_text), level=Qgis.Critical)
             return False
 
     return False
 
-def store_subset_expression(layer_instance, exp_text, exp_checked, iface) -> bool:
+def store_subset_expression(layer, exp_text, exp_checked, iface) -> bool:
     """Store the filter expression text in the project
 
-    :param layer_instance: vector layer
-    :type layer_instance: QgsVectorLayer
+    :param layer: vector layer
+    :type layer: QgsVectorLayer
     :param exp_text: expression text
     :type exp_text: str
     :param exp_checked: expression is checked
@@ -97,10 +134,10 @@ def store_subset_expression(layer_instance, exp_text, exp_checked, iface) -> boo
     :rtype: bool
     """
 
-    layer_instance.setCustomProperty('subset_expression', exp_text)
-    layer_instance.setCustomProperty('subset_expression_checked', exp_checked)
+    layer.setCustomProperty('subset_expression', exp_text)
+    layer.setCustomProperty('subset_expression_checked', exp_checked)
 
     if exp_checked:
-        return set_subset_expression(layer_instance, exp_text, iface)
+        return set_subset_expression(layer, exp_text, iface)
 
     return True

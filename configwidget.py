@@ -36,7 +36,7 @@ class ConfigWidget(QgsOptionsPageWidget):
         vector_layers =  [l for l in list(QgsProject.instance().mapLayers().values()) if l.type() == QgsMapLayerType.VectorLayer]
         self.mLayerTableWidget.setRowCount(len(vector_layers))
         self.mLayerTableWidget.setColumnCount(4)
-        self.mLayerTableWidget.setHorizontalHeaderLabels([_tr('Active'), _tr('Name'), _tr('Filter expression'), _tr('Current expression')])
+        self.mLayerTableWidget.setHorizontalHeaderLabels([_tr('Active'), _tr('Name'), _tr('Dynamic filter'), _tr('Current filter')])
         self.mLayerTableWidget.setColumnWidth(1, 200)
         self.mLayerTableWidget.setColumnWidth(2, 500)
         self.mLayerTableWidget.setColumnWidth(3, 500)
@@ -65,8 +65,8 @@ class ConfigWidget(QgsOptionsPageWidget):
         for row in range(len(self.vector_layers)):
             exp_checked = 1 if self.mLayerTableWidget.item(row, 0).checkState() == Qt.Checked else 0
             exp_text = self.mLayerTableWidget.item(row, 2).data(Qt.DisplayRole).strip()
-            layer_instance = self.vector_layers[row]
-            store_subset_expression(layer_instance, exp_text, exp_checked, self.iface)
+            layer = self.vector_layers[row]
+            store_subset_expression(layer, exp_text, exp_checked, self.iface)
 
     def toggle_all(self):
         """Toggle all layers"""

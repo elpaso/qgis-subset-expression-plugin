@@ -1,3 +1,3 @@
-# Subset expression filter plugin
+# Dynamic subset filter plugin
 
-QGIS plugin to dynamically set provider filter expressions using QGIS expressions.
+QGIS plugin to dynamically set provider filters using QGIS variable replacement.

@@ -1,6 +1,6 @@
 [general]
-name:Subset Expression Plugin
-description:Plugin to set a provider subset string based on an expression.
+name:Dynamic Provider Filter Plugin
+description:QGIS plugin to dynamically set provider filters using QGIS variable replacement.
 
 version:1.0
 qgisMinimumVersion:3.0
@@ -8,7 +8,7 @@ experimental:False
 homepage:
 repository:https://github.com/elpaso/qgis-subset-expression-plugin
 tracker:https://github.com/elpaso/qgis-subset-expression-plugin/issues
-about:Plugin to set a provider subset string based on an expression.
+about:QGIS plugin to dynamically set provider filters using QGIS variable replacement.
 
 changelog:
     Version 1.0:
