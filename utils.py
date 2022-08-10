@@ -92,7 +92,7 @@ def set_subset_expression(layer, exp_text, iface) -> bool:
     """
 
     if exp_text is not None and exp_text != "":
-        
+
         ctx = QgsExpressionContext(QgsExpressionContextUtils.globalProjectLayerScopes(layer))
 
         # Validate
@@ -107,14 +107,13 @@ def set_subset_expression(layer, exp_text, iface) -> bool:
             exp_text = exp_text.replace('@{}'.format(var), str(ctx.variable(var)))
 
         if exp_text == layer.subsetString():
-            log_message(_tr("Layer <b>{}</b> provider filter was not changed.").format(layer.name()))
             return False
 
         if layer.setSubsetString(exp_text):
             notify(iface, _tr("Notice"), _tr("Layer <b>{}</b> provider filter was changed to: <tt>{}</tt>").format(layer.name(), exp_text), level=Qgis.Success)
             return True
         else:
-            notify(iface, tr("Error"), _tr("Error setting provider filter for layer <b>{}</b> to <tt>{}</tt>").format(layer.name(), exp_text), level=Qgis.Critical)
+            notify(iface, _tr("Error"), _tr("Error setting provider filter for layer <b>{}</b> to <tt>{}</tt>").format(layer.name(), exp_text), level=Qgis.Critical)
             return False
 
     return False
