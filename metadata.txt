@@ -5,7 +5,7 @@ description:QGIS plugin to dynamically set provider filters using QGIS variable 
 version:1.0
 qgisMinimumVersion:3.0
 experimental:False
-homepage:
+homepage:https://github.com/elpaso/qgis-subset-expression-plugin
 repository:https://github.com/elpaso/qgis-subset-expression-plugin
 tracker:https://github.com/elpaso/qgis-subset-expression-plugin/issues
 about:QGIS plugin to dynamically set provider filters using QGIS variable replacement.
