@@ -52,13 +52,24 @@ class ConfigWidget(QgsOptionsPageWidget):
             name_item.setFlags(Qt.NoItemFlags)
             filter_subset_item = QTableWidgetItem(l.subsetString())
             filter_subset_item.setFlags(Qt.NoItemFlags)
+            filter_subset_item.layer = l
             subset_item = QTableWidgetItem(l.customProperty('subset_expression', l.subsetString()))
             self.mLayerTableWidget.setItem(row, 0, check_item)
             self.mLayerTableWidget.setItem(row, 1, name_item)
             self.mLayerTableWidget.setItem(row, 2, subset_item)
             self.mLayerTableWidget.setItem(row, 3, filter_subset_item)
 
+        QgsProject.instance().customVariablesChanged.connect(self.var_changed)
+        QgsProject.instance().customVariablesChanged.connect(self.var_changed)
+
         self.vector_layers =  vector_layers
+
+    def var_changed(self):
+
+        for row in range(self.mLayerTableWidget.rowCount()):
+            filter_subset_item = self.mLayerTableWidget.item(row, 3)
+            filter_subset_item.setText(filter_subset_item.layer.subsetString())
+
 
     def apply(self):
 
