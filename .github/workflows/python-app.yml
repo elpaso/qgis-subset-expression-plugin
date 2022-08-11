@@ -41,6 +41,7 @@ jobs:
         unzip qgis-subset-expression-plugin.zip
         # Remove unneded files
         rm -rf qgis-subset-expression-plugin/qgis-subset-expression-plugin/.github
+        rm -rf qgis-subset-expression-plugin/qgis-subset-expression-plugin/.gitignore
         rm -rf qgis-subset-expression-plugin/qgis-subset-expression-plugin/tests
     - uses: actions/upload-artifact@v2
       with:
