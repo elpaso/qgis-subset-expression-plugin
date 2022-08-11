@@ -39,9 +39,12 @@ jobs:
       run: |
         git archive --prefix qgis-subset-expression-plugin/qgis-subset-expression-plugin/ --format=zip -o qgis-subset-expression-plugin.zip ${{ github.sha }}
         unzip qgis-subset-expression-plugin.zip
+        # Remove unneded files
+        rm -rf qgis-subset-expression-plugin/qgis-subset-expression-plugin/.github
+        rm -rf qgis-subset-expression-plugin/qgis-subset-expression-plugin/tests
     - uses: actions/upload-artifact@v2
       with:
-        name: qgis-subset-expression-plugin.zip
+        name: qgis-subset-expression-plugin
         path: ./qgis-subset-expression-plugin
     #- name: Setup tmate session
     #  if: ${{ failure() }}
